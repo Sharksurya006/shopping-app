@@ -1,0 +1,22 @@
+@tailwind base;@tailwind components;@tailwind utilities;
+:root{
+--bg:252 251 249;--surface:255 255 255;--card:255 255 255;
+--ink:24 32 51;--mute:102 112 133;--line:231 232 237;--hover:233 225 240;
+--plum:75 36 92;--sapphire:36 59 107;--gold:201 168 93;--lavender:233 225 240;--rose:201 143 165;
+--success:63 128 100;--error:184 58 91;
+}
+.dark{
+--bg:16 21 34;--surface:23 30 48;--card:32 40 61;
+--ink:248 246 242;--mute:170 178 194;--line:48 57 77;--hover:32 40 61;
+--plum:155 98 181;--sapphire:102 133 199;--gold:216 186 106;--lavender:187 168 202;--rose:201 143 165;
+--success:63 128 100;--error:184 58 91;
+}
+body{@apply bg-bg text-ink font-sans antialiased}
+:focus-visible{outline:2px solid rgb(var(--plum));outline-offset:2px}
+.btn{@apply inline-flex items-center justify-center gap-2 px-6 py-3 text-xs font-semibold tracking-widest uppercase transition disabled:opacity-50}
+.btn-solid{@apply bg-plum text-white hover:opacity-90}
+.btn-line{@apply bg-transparent text-ink border border-line hover:bg-hover}
+.btn-gold{@apply bg-gold text-ink hover:opacity-90}
+.input{@apply w-full border border-line bg-surface px-3 py-2.5 text-sm placeholder:text-mute focus:border-plum outline-none}
+.skeleton{@apply animate-pulse bg-hover}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

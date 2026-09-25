@@ -1,0 +1,12 @@
+import {Link} from 'react-router-dom';import {motion} from 'framer-motion';import {Swiper,SwiperSlide} from 'swiper/react';import 'swiper/css';import {useEffect,useState} from 'react';
+import {productService} from '../services';import {CATEGORIES,slug} from '../data/products';import {img} from '../utils';import ProductCard from '../components/ProductCard';import {ProductSkeleton} from '../components/ui';
+export default function Home(){const [items,setItems]=useState(null);useEffect(()=>{document.title='NAYARA — Draped in Elegance';productService.list().then(setItems)},[]);
+return <><section className="relative h-[80vh] min-h-[480px] bg-surface"><img src={img('nayara-hero',1600,900)} alt="Editorial saree drape" className="absolute inset-0 w-full h-full object-cover"/>
+<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/><div className="relative h-full max-w-7xl mx-auto px-4 flex flex-col justify-end pb-16 text-white">
+<motion.h1 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:.8}} className="font-display text-4xl sm:text-6xl max-w-2xl leading-tight">Timeless Drapes. Contemporary Grace.</motion.h1>
+<div className="flex flex-wrap gap-3 mt-6"><Link to="/collections" className="btn-gold btn">Explore collection</Link><Link to="/shop" className="btn border border-white text-white hover:bg-white/10">Shop sarees</Link></div></div></section>
+<section className="max-w-7xl mx-auto px-4 mt-16"><h2 className="font-display text-3xl mb-6">Shop by category</h2><div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+{CATEGORIES.map(c=><Link key={c} to={`/shop/${slug(c)}`} className="group relative aspect-square overflow-hidden border border-line"><img loading="lazy" src={img('cat'+c,400,400)} alt={c} className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition duration-500"/><span className="absolute inset-x-0 bottom-0 bg-bg/90 text-xs font-medium p-2 text-center">{c}</span></Link>)}</div></section>
+<section className="max-w-7xl mx-auto px-4 mt-16"><h2 className="font-display text-3xl mb-6">New arrivals</h2>
+{!items?<div className="grid grid-cols-2 md:grid-cols-4 gap-4">{Array.from({length:4},(_,i)=><ProductSkeleton key={i}/>)}</div>:
+<Swiper spaceBetween={16} slidesPerView={1.8} breakpoints={{768:{slidesPerView:3.2},1024:{slidesPerView:4.2}}}>{items.filter(p=>p.isNew).map(p=><SwiperSlide key={p.id}><ProductCard p={p}/></SwiperSlide>)}</Swiper>}</section></>}

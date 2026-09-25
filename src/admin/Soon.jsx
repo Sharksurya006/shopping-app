@@ -1,0 +1,1 @@
+export default function Soon(){return <div className="bg-bg border border-line p-10 text-center text-mute">This admin module is scaffolded — wire it to its service in <code>src/services</code>.</div>}

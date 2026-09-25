@@ -1,0 +1,6 @@
+import {NavLink,Outlet,Link} from 'react-router-dom';import {Moon,Sun} from 'lucide-react';import {useStore} from '../store';
+const L=['Dashboard','Products','Categories','Collections','Inventory','Orders','Customers','Payments','Coupons','Reviews','Banners','Notifications','Analytics','Reports','Invoices','Settings'];
+export default function AdminLayout(){const theme=useStore(s=>s.theme),toggle=useStore(s=>s.toggleTheme);
+return <div className="min-h-screen lg:grid lg:grid-cols-[220px_1fr] bg-surface"><aside className="bg-bg border-r border-line p-4 lg:sticky lg:top-0 lg:h-screen overflow-auto"><Link to="/" className="font-display text-xl tracking-[0.3em]">NAYARA</Link>
+<nav className="mt-6 flex lg:grid gap-1 overflow-x-auto text-sm" aria-label="Admin">{L.map(l=><NavLink key={l} end={l==='Dashboard'} to={l==='Dashboard'?'/admin':`/admin/${l.toLowerCase()}`} className={({isActive})=>`px-3 py-2 whitespace-nowrap ${isActive?'bg-plum text-white':'hover:bg-hover'}`}>{l}</NavLink>)}</nav></aside>
+<div><div className="flex justify-end p-4 bg-bg border-b border-line"><button onClick={toggle} aria-label="Toggle theme">{theme==='dark'?<Sun size={18}/>:<Moon size={18}/>}</button></div><div className="p-6"><Outlet/></div></div></div>}
