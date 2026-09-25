@@ -248,7 +248,7 @@ export default function Checkout() {
 
       {step === 0 && (
         <div className="grid gap-4">
-          <h1 className="font-display text-2xl">
+          <h1 className="font-display text-2xl font-bold">
             Delivery address
           </h1>
 
