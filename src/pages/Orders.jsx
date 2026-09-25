@@ -1,22 +1,28 @@
-import {useEffect,useState} from 'react';import {Link,useParams} from 'react-router-dom';import {Check} from 'lucide-react';import {useStore} from '../store';import {orders as mock,amt} from '../data/extra';import {trackingService,invoiceService} from '../services';import DeliveryStatus from '../components/DeliveryStatus';import {inr} from '../utils';import {EmptyState} from '../components/ui';
-export const useOrders=()=>{const o=useStore(s=>s.orders);return [...o,...mock]};
-const IDX={Confirmed:1,Processing:2,Packed:3,Shipped:4,'Out for Delivery':5,Delivered:6};
-export function OrdersTable(){const all=useOrders(),add=useStore(s=>s.addToCart);const [gone,setGone]=useState([]);const list=all.filter(o=>!gone.includes(o.id));
-if(!list.length)return <EmptyState title="No orders yet" text="Your orders will show up here." cta={<Link to="/shop" className="btn btn-solid">Shop sarees</Link>}/>;
-return <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="text-left text-mute border-b border-line"><tr>{['Order','Date','Items','Amount','Payment','Status','Actions'].map(h=><th key={h} className="p-3 font-medium">{h}</th>)}</tr></thead><tbody>
-{list.map(o=><tr key={o.id} className="border-b border-line"><td className="p-3">{o.id}</td><td className="p-3">{(o.date||'').slice(0,10)}</td><td className="p-3">{o.items.length}</td><td className="p-3">{inr(amt(o))}</td><td className="p-3">{o.pay==='cod'||o.pay==='COD'?'Pay on delivery':'Paid'}</td><td className="p-3">{o.status}</td>
-<td className="p-3 flex flex-wrap gap-3 text-xs underline"><Link to={`/orders/${o.id}`}>View</Link><Link to={`/orders/${o.id}`}>Track</Link><Link to={`/invoice/${o.id}`}>Invoice</Link><button onClick={()=>o.items.forEach(i=>add(i.id))}>Buy again</button>{o.status!=='Delivered'?<button onClick={()=>setGone(g=>[...g,o.id])}>Cancel</button>:<button>Return</button>}</td></tr>)}</tbody></table></div>}
-export const OrdersPage=()=><div className="max-w-6xl mx-auto px-4 py-10"><h1 className="font-display text-3xl mb-6">Your orders</h1><OrdersTable/></div>;
-export function OrderDetail(){const {id}=useParams(),all=useOrders(),o=all.find(x=>x.id===id)||all[0];const [steps,setSteps]=useState([]);useEffect(()=>{trackingService.getOrderTracking(o.id).then(setSteps);document.title='Track order | NAYARA'},[]);
-const cur=IDX[o.status]??1;
-return <div className="max-w-3xl mx-auto px-4 py-10"><h1 className="font-display text-3xl">Order {o.id}</h1><p className="text-sm text-mute mt-1">Tracking ID TRK{o.id.slice(-6)} · Courier partner · Arrives in 3–5 days</p>
-<ol className="mt-8 grid gap-0">{steps.map((s,i)=><li key={s} className="flex gap-4"><div className="flex flex-col items-center"><span className={`w-6 h-6 grid place-items-center border ${i<=cur?'bg-plum text-white border-plum':'border-line'}`}>{i<=cur&&<Check size={14}/>}</span>{i<steps.length-1&&<span className="w-px h-8 bg-line"/>}</div><span className={`text-sm ${i<=cur?'':'text-mute'}`}>{s}</span></li>)}</ol>
-<div className="mt-8 border-t border-line pt-4 grid gap-2 text-sm">{o.items.map(i=><div key={i.id} className="flex justify-between"><span>{i.name} × {i.qty||1}</span>{inr(i.price*(i.qty||1))}</div>)}</div><Link className="btn btn-line mt-6" to={`/invoice/${o.id}`}>View invoice</Link></div>}
-export function Invoice(){const {id}=useParams(),all=useOrders(),o=all.find(x=>x.id===id)||all[0],user=useStore(s=>s.user);
-useEffect(()=>{invoiceService.generateInvoice(o)},[id]);
-const sub=amt(o),gst=Math.round(sub*.05);
-return <div className="max-w-3xl mx-auto px-4 py-10"><div className="border border-line p-8 bg-surface"><div className="flex justify-between"><div className="font-display text-2xl tracking-[0.3em] text-plum">NAYARA</div><div className="text-sm text-right">Invoice INV-{o.id}<br/>Order {o.id}<br/>{(o.date||'').slice(0,10)}</div></div>
-<table className="w-full text-sm mt-8"><thead className="text-left text-mute border-b border-line"><tr><th className="py-2">Product</th><th>Qty</th><th className="text-right">Price</th></tr></thead><tbody>{o.items.map(i=><tr key={i.id} className="border-b border-line"><td className="py-2">{i.name}</td><td>{i.qty||1}</td><td className="text-right">{inr(i.price*(i.qty||1))}</td></tr>)}</tbody></table>
-<div className="text-sm text-right mt-4 grid gap-1"><div>GST (5%): {inr(gst)}</div><div>Shipping: Free</div><b className="text-base">Total: {inr(sub+gst)}</b><div className="text-mute">Payment: {o.pay||'Paid'}</div></div></div>
-<div className="mt-6"><DeliveryStatus email={user?.email} mobile={o.address?.mobile}/></div>
-<div className="flex gap-3 mt-4 print:hidden"><button className="btn btn-solid" onClick={()=>window.print()}>Download invoice</button><button className="btn btn-line" onClick={()=>window.print()}>Print invoice</button></div></div>}
+import { useEffect, useState } from 'react'; import { Link, useParams } from 'react-router-dom'; import { Check } from 'lucide-react'; import { useStore } from '../store'; import { orders as mock, amt } from '../data/extra'; import { trackingService, invoiceService } from '../services'; import DeliveryStatus from '../components/DeliveryStatus'; import { inr } from '../utils'; import { EmptyState } from '../components/ui';
+export const useOrders = () => { const o = useStore(s => s.orders); return [...o, ...mock] };
+const IDX = { Confirmed: 1, Processing: 2, Packed: 3, Shipped: 4, 'Out for Delivery': 5, Delivered: 6 };
+export function OrdersTable() {
+	const all = useOrders(), add = useStore(s => s.addToCart); const [gone, setGone] = useState([]); const list = all.filter(o => !gone.includes(o.id));
+	if (!list.length) return <EmptyState title="No orders yet" text="Your orders will show up here." cta={<Link to="/shop" className="btn btn-solid">Shop sarees</Link>} />;
+	return <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="text-left text-mute border-b border-line"><tr>{['Order', 'Date', 'Items', 'Amount', 'Payment', 'Status', 'Actions'].map(h => <th key={h} className="p-3 font-medium">{h}</th>)}</tr></thead><tbody>
+		{list.map(o => <tr key={o.id} className="border-b border-line"><td className="p-3">{o.id}</td><td className="p-3">{(o.date || '').slice(0, 10)}</td><td className="p-3">{o.items.length}</td><td className="p-3">{inr(amt(o))}</td><td className="p-3">{o.pay === 'cod' || o.pay === 'COD' ? 'Pay on delivery' : 'Paid'}</td><td className="p-3">{o.status}</td>
+			<td className="p-3 flex flex-wrap gap-3 text-xs underline"><Link to={`/orders/${o.id}`}>View</Link><Link to={`/orders/${o.id}`}>Track</Link><Link to={`/invoice/${o.id}`}>Invoice</Link><button onClick={() => o.items.forEach(i => add(i.id))}>Buy again</button>{o.status !== 'Delivered' ? <button onClick={() => setGone(g => [...g, o.id])}>Cancel</button> : <button>Return</button>}</td></tr>)}</tbody></table></div>
+}
+export const OrdersPage = () => <div className="max-w-6xl mx-auto px-4 py-10"><h1 className="font-display text-3xl mb-6">Your orders</h1><OrdersTable /></div>;
+export function OrderDetail() {
+	const { id } = useParams(), all = useOrders(), o = all.find(x => x.id === id) || all[0]; const [steps, setSteps] = useState([]); useEffect(() => { trackingService.getOrderTracking(o.id).then(setSteps); document.title = 'Track order | NAYARA' }, []);
+	const cur = IDX[o.status] ?? 1;
+	return <div className="max-w-3xl mx-auto px-4 py-10"><h1 className="font-display text-3xl">Order {o.id}</h1><p className="text-sm text-mute mt-1">Tracking ID TRK{o.id.slice(-6)} · Courier partner · Arrives in 3–5 days</p>
+		<ol className="mt-8 grid gap-0">{steps.map((s, i) => <li key={s} className="flex gap-4"><div className="flex flex-col items-center"><span className={`w-6 h-6 grid place-items-center border ${i <= cur ? 'bg-plum text-white border-plum' : 'border-line'}`}>{i <= cur && <Check size={14} />}</span>{i < steps.length - 1 && <span className="w-px h-8 bg-line" />}</div><span className={`text-sm ${i <= cur ? '' : 'text-mute'}`}>{s}</span></li>)}</ol>
+		<div className="mt-8 border-t border-line pt-4 grid gap-2 text-sm">{o.items.map(i => <div key={i.id} className="flex justify-between"><span>{i.name} × {i.qty || 1}</span>{inr(i.price * (i.qty || 1))}</div>)}</div><Link className="btn btn-line mt-6" to={`/invoice/${o.id}`}>View invoice</Link></div>
+}
+export function Invoice() {
+	const { id } = useParams(), all = useOrders(), o = all.find(x => x.id === id) || all[0], user = useStore(s => s.user);
+	useEffect(() => { invoiceService.generateInvoice(o) }, [id]);
+	const sub = amt(o), gst = Math.round(sub * .05);
+	return <div className="max-w-3xl mx-auto px-4 py-10"><div className="border border-line p-8 bg-surface"><div className="flex justify-between"><div className="font-display text-2xl tracking-[0.3em] text-plum">NAYARA</div><div className="text-sm text-right">Invoice INV-{o.id}<br />Order {o.id}<br />{(o.date || '').slice(0, 10)}</div></div>
+		<table className="w-full text-sm mt-8"><thead className="text-left text-mute border-b border-line"><tr><th className="py-2">Product</th><th>Qty</th><th className="text-right">Price</th></tr></thead><tbody>{o.items.map(i => <tr key={i.id} className="border-b border-line"><td className="py-2">{i.name}</td><td>{i.qty || 1}</td><td className="text-right">{inr(i.price * (i.qty || 1))}</td></tr>)}</tbody></table>
+		<div className="text-sm text-right mt-4 grid gap-1"><div>GST (5%): {inr(gst)}</div><div>Shipping: Free</div><b className="text-base">Total: {inr(sub + gst)}</b><div className="text-mute">Payment: {o.pay || 'Paid'}</div></div></div>
+		<div className="mt-6"><DeliveryStatus email={user?.email} mobile={o.address?.mobile} /></div>
+		<div className="flex gap-3 mt-4 print:hidden"><button className="btn btn-solid" onClick={() => window.print()}>Download invoice</button><button className="btn btn-line" onClick={() => window.print()}>Print invoice</button></div></div>
+}
